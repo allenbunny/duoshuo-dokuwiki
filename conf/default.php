@@ -5,5 +5,5 @@
  * @author Matt <caijiamx@gmail.com>
  */
 
-$conf['shortname'] = '';
 $conf['auto'] = 0;
+$conf['shortname'] = '';

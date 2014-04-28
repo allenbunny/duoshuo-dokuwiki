@@ -10,6 +10,8 @@
 if (!defined('DOKU_INC')) die();
 
 class syntax_plugin_duoshuo extends DokuWiki_Syntax_Plugin {
+    const DUOSHUO_SYNTAX = "~~DUOSHUO~~";
+    const NODUOSHUO_SYNTAX = "~~NODUOSHUO~~";
     /**
      * @return string Syntax mode type
      */
@@ -35,7 +37,8 @@ class syntax_plugin_duoshuo extends DokuWiki_Syntax_Plugin {
      * @param string $mode Parser mode
      */
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('~~DUOSHUO~~',$mode,'plugin_duoshuo');
+        $this->Lexer->addSpecialPattern(self::DUOSHUO_SYNTAX,$mode,'plugin_duoshuo');
+        $this->Lexer->addSpecialPattern(self::NODUOSHUO_SYNTAX,$mode,'plugin_duoshuo');
     }
 
     /**
@@ -48,9 +51,8 @@ class syntax_plugin_duoshuo extends DokuWiki_Syntax_Plugin {
      * @return array Data for the renderer
      */
     public function handle($match, $state, $pos, &$handler){
-        $data = array();
-
-        return $data;
+        $match = preg_replace( '/~~/' , '' , $match );
+        return array(strtolower($match));;
     }
 
     /**
@@ -63,7 +65,9 @@ class syntax_plugin_duoshuo extends DokuWiki_Syntax_Plugin {
      */
     public function render($mode, &$renderer, $data) {
         if($mode != 'xhtml') return false;
-        $renderer->doc .= $this->_duoshuo();
+        if($data[0] == "duoshuo"){
+            $renderer->doc .= $this->_duoshuo();
+        }
         return true;
     }
 

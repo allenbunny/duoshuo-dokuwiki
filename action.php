@@ -32,8 +32,11 @@ class action_plugin_duoshuo extends DokuWiki_Action_Plugin {
      */
 
     public function handle_parser_wikitext_perprocess(Doku_Event &$event, $param) {
-        if($this->_canShowDuoshuo($event->data)){
-            $event->data .= "\n ~~DUOSHUO~~";
+        $flag = $this->_canShowDuoshuo($event->data);
+        if($flag == 1){
+            $event->data .= "\n " . syntax_plugin_duoshuo::DUOSHUO_SYNTAX;
+        }elseif($flag == 3){
+            preg_replace('/[^<nowiki>]' . syntax_plugin_duoshuo::NODUOSHUO_SYNTAX . '/', '', $event->data);
         }
         return true;
     }
@@ -44,16 +47,17 @@ class action_plugin_duoshuo extends DokuWiki_Action_Plugin {
      * @return bool 
      */
     private function _canShowDuoshuo($data){
-        $flag =false;
-        $auto = $this->getConf('auto');
-        $not_added = (strpos($data , '~~DUOSHUO~~') === false);
-        if(isset($_REQUEST['do'])){
-            $not_do = false;
+        $flag = 0;
+        $no_duoshuo = preg_match('/[^<nowiki>]' . syntax_plugin_duoshuo::NODUOSHUO_SYNTAX . '/' , $data , $matches);
+        if($no_duoshuo >= 1){
+            $flag = 3;
         }else{
-            $not_do = true;
-        }
-        if($auto && $not_added && $not_do){
-            $flag =true;
+            $auto = $this->getConf('auto');
+            $count = preg_match('/[^<nowiki>]' . syntax_plugin_duoshuo::DUOSHUO_SYNTAX . '/' , $data , $matches);
+            $no_admin = isset( $_REQUEST['do'] ) ? false : true ;
+            if($auto && $no_admin && $count == 0 && $no_duoshuo == 0){
+                $flag = 1;
+            }
         }
         return $flag;
     }
