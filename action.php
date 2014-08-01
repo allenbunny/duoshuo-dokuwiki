@@ -34,17 +34,17 @@ class action_plugin_duoshuo extends DokuWiki_Action_Plugin {
 
     public function handle_parser_wikitext_perprocess(Doku_Event &$event, $param) {
         $flag = $this->_canShowDuoshuo($event->data);
-        if($flag == 2){
+        if($flag === 2){
             $event->data .= "\n " . syntax_plugin_duoshuo::DUOSHUO_SYNTAX;
-        }elseif($flag == 3){
-            preg_replace('/[^<nowiki>]' . syntax_plugin_duoshuo::NODUOSHUO_SYNTAX . '/', '', $event->data);
+        }elseif($flag === 1 || $flag === 3){
+            $event->data = preg_replace('/[^<nowiki>]' . syntax_plugin_duoshuo::DUOSHUO_SYNTAX . '/', '', $event->data);
         }
         return true;
     }
 
     public function handle_tpl_content_display(Doku_Event &$event, $param) {
         $flag = $this->_canShowDuoshuo($event->data);
-        if($flag == 1){
+        if($flag === 1){
             $event->data .= $this->getDuoshuoScript();
         }
         return true;
@@ -58,26 +58,23 @@ class action_plugin_duoshuo extends DokuWiki_Action_Plugin {
     private function _canShowDuoshuo($data){
         $flag = 0;
         $no_duoshuo = preg_match('/[^<nowiki>]' . syntax_plugin_duoshuo::NODUOSHUO_SYNTAX . '/' , $data , $matches);
-        if($no_duoshuo >= 1){
+        if($no_duoshuo >= 1 || p_get_metadata(getID() , 'noduoshuo') == 1){
             $flag = 3;
+            p_set_metadata(getID() , array('noduoshuo' => 1));
         }else{
             $auto = $this->getConf('auto');
-            if(!$auto){
-                $count = preg_match('/[^<nowiki>]' . syntax_plugin_duoshuo::DUOSHUO_SYNTAX . '/' , $data , $matches);
-                if($count >= 1){
-                    $has_wiki = 1;
-                }else{
-                    $has_wiki = 0;
-                }
-            }
             $no_admin = isset( $_REQUEST['do'] ) ? false : true ;
-            //ref https://www.dokuwiki.org/devel:environment
             $info = pageinfo();
             $exists = $info['exists'];
-            if($auto && $exists && $no_admin){
-                $flag = 1;
-            } elseif($has_wiki && $exists && $no_admin){
-                $flag = 2;
+            if($auto){
+                if($auto && $exists && $no_admin){
+                    $flag = 1;
+                }
+            }else{
+                $count = preg_match('/[^<nowiki>]' . syntax_plugin_duoshuo::DUOSHUO_SYNTAX . '/' , $data , $matches);
+                if($count >= 1 && $exists && $no_admin){
+                    $flag = 2;
+                }
             }
         }
         return $flag;
