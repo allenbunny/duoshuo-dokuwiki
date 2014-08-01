@@ -4,13 +4,5 @@
  *
  * @author Matt <caijiamx@gmail.com>
  */
-
-// menu entry for admin plugins
-// $lang['menu'] = 'Your menu entry';
-
-// custom language strings for the plugin
-// $lang['fixme'] = 'FIXME';
-
-
-
-//Setup VIM: ex: et ts=4 :
+$lang['shortname'] = 'Your duoshuo shortname';
+$lang['auto'] = 'Show duoshuo every wiki page';

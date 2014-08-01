@@ -66,27 +66,35 @@ class syntax_plugin_duoshuo extends DokuWiki_Syntax_Plugin {
     public function render($mode, &$renderer, $data) {
         if($mode != 'xhtml') return false;
         if($data[0] == "duoshuo"){
-            $renderer->doc .= $this->_duoshuo();
+            $renderer->doc .= $this->getDuoshuoScript();
         }
         return true;
     }
 
-    function _duoshuo(){
+    public function getDuoshuoScript(){
+        $short_name = $this->getConf('shortname');
+        $wiki_id  = getID();
+        $wiki_title = tpl_pagetitle($wiki_id , true);
+        $host = $_SERVER['HTTPS']?"https":"http";
+        $host = $host . "://" . $_SERVER['SERVER_NAME'];
+        $wiki_url = $host . wl($wiki_id);
         $doc = '
-        <!-- Duoshuo Comment BEGIN -->
-                <div class="ds-thread"></div>
-            <script type="text/javascript">
-            var duoshuoQuery = {short_name:"' . $this->getConf('shortname') . '"};
-                (function() {
-                    var ds = document.createElement("script");
-                    ds.type = "text/javascript";ds.async = true;
-                    ds.src = "http://static.duoshuo.com/embed.js";
-                    ds.charset = "UTF-8";
-                    (document.getElementsByTagName("head")[0] 
-                    || document.getElementsByTagName("body")[0]).appendChild(ds);
-                })();
-                </script>
-        <!-- Duoshuo Comment END -->';
+        <!-- 多说评论框 start -->
+    <div class="ds-thread" data-thread-key="" data-title="' . $wiki_title . '" data-url="' . $wiki_url . '"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"' . $short_name . '"};
+    (function() {
+        var ds = document.createElement("script");
+        ds.type = "text/javascript";ds.async = true;
+        ds.src = (document.location.protocol == "https:" ? "https:" : "http:") + "//static.duoshuo.com/embed.js";
+        ds.charset = "UTF-8";
+        (document.getElementsByTagName("head")[0] 
+         || document.getElementsByTagName("body")[0]).appendChild(ds);
+    })();
+    </script>
+<!-- 多说公共JS代码 end -->';
         return $doc;
     }
 }
