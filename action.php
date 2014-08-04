@@ -58,11 +58,12 @@ class action_plugin_duoshuo extends DokuWiki_Action_Plugin {
     private function _canShowDuoshuo($data){
         $flag = 0;
         $no_duoshuo = preg_match('/[^<nowiki>]' . syntax_plugin_duoshuo::NODUOSHUO_SYNTAX . '/' , $data , $matches);
-        global $INFO;
-        if($no_duoshuo >= 1 ||$INFO['duoshuo'] == 1){
+        global $DUOSHUO;
+        if($no_duoshuo >= 1 ||$DUOSHUO == 1){
             $flag = 3;
-           $INFO['duoshuo'] = 1;
+           $DUOSHUO = 1;
         }else{
+            $DUOSHUO = 0;
             $auto = $this->getConf('auto');
             $no_admin = isset( $_REQUEST['do'] ) ? false : true ;
             $info = pageinfo();
