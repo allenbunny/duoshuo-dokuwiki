@@ -10,7 +10,7 @@
 if(!defined('DOKU_INC')) die();
 
 class action_plugin_duoshuo extends DokuWiki_Action_Plugin {
-
+    static $DUOSHUO = 0;
     /**
      * Registers a callback function for a given event
      *
@@ -34,9 +34,7 @@ class action_plugin_duoshuo extends DokuWiki_Action_Plugin {
 
     public function handle_parser_wikitext_perprocess(Doku_Event &$event, $param) {
         $flag = $this->_canShowDuoshuo($event->data);
-        if($flag === 2){
-            $event->data .= "\n " . syntax_plugin_duoshuo::DUOSHUO_SYNTAX;
-        }elseif($flag === 1 || $flag === 3){
+        if($flag === 1 || $flag === 3){
             $event->data = preg_replace('/[^<nowiki>]' . syntax_plugin_duoshuo::DUOSHUO_SYNTAX . '/', '', $event->data);
         }
         return true;
@@ -58,12 +56,11 @@ class action_plugin_duoshuo extends DokuWiki_Action_Plugin {
     private function _canShowDuoshuo($data){
         $flag = 0;
         $no_duoshuo = preg_match('/[^<nowiki>]' . syntax_plugin_duoshuo::NODUOSHUO_SYNTAX . '/' , $data , $matches);
-        global $DUOSHUO;
-        if($no_duoshuo >= 1 ||$DUOSHUO == 1){
+        if($no_duoshuo >= 1 ||self::$DUOSHUO == 1){
             $flag = 3;
-           $DUOSHUO = 1;
+            self::$DUOSHUO = 1;
         }else{
-            $DUOSHUO = 0;
+            self::$DUOSHUO = 0;
             $auto = $this->getConf('auto');
             $no_admin = isset( $_REQUEST['do'] ) ? false : true ;
             $info = pageinfo();
